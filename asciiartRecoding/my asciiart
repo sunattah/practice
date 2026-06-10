@@ -1,0 +1,76 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"strings"
+)
+
+func loadbanner(input string) map[rune][]string {
+	file, err := os.ReadFile(input)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "file is not indicated%+v", err)
+	}
+
+	lines := strings.Split(strings.ReplaceAll(string(file), "\r\n", "\n"), "\n")
+
+	mapping := map[rune][]string{}
+	currentchar := rune(32)
+
+	for i := 1; i+8 < len(lines); i += 9 {
+		mapping[currentchar] = lines[i : i + 8]
+		currentchar++
+	}
+	return mapping
+}
+func render(input string, banner map[rune][]string) []string {
+	slise := make([]string, 8)
+	for _, ch := range input {
+		f, ok := banner[ch]
+		if !ok {
+			continue
+		}
+		for i := 0; i < 8; i ++ {
+			slise[i] += f[i]
+		}
+		
+	}
+	return slise
+
+}
+
+func split(input string) []string {
+	line := strings.ReplaceAll(input, "\\n", "\n")
+	return strings.Split(line, "\n")
+}
+
+func main() {
+	if len(os.Args) <  2 {
+		fmt.Println("Usage go run . <STRING> [BANNER]")
+	}
+	input := os.Args[1]
+	banner := "standard.txt"
+	if len(os.Args) == 3 {
+		banner = os.Args[2] + ".txt"
+	}
+	col := loadbanner(banner) 
+
+	if len(col) == 0 {
+		fmt.Println("empty file")
+		os.Exit(1)
+	}
+	if len(col) != 95 {
+		fmt.Println("Incomplete file")
+	}
+	s := split(input)
+	for _, ch := range s {
+		if ch == "" {
+			fmt.Println()
+			return
+		}
+		row := render(ch, col)
+		for _, char := range row {
+			fmt.Println(char)
+		}
+	}
+}
