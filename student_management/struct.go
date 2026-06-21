@@ -6,15 +6,7 @@ type student struct {
 	Grade string
 }
 
-func disStuInf(input string) {
-
-}
-
-func main() {
-	stud := student{
-		name:  "adam",
-		age:   32,
-		Grade: "A",
-	}
-
+type id struct {
+	Score          student
+	Interestingsub string
 }
