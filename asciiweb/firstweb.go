@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "fmt"
 	"fmt"
 	"net/http"
 )
@@ -8,9 +9,10 @@ import (
 func webHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("hello welcome to my site"))
 }
-func siteHandler(w http.ResponseWriter, r *http.Request)  {
-	
+func siteHandler(w http.ResponseWriter, r *http.Request) {
+
 }
+
 func main() {
 	http.HandleFunc("/hello", webHandler)
 
