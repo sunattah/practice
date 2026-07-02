@@ -3,49 +3,44 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strings"
 )
 
-func formHandler(w http.ResponseWriter, r *http.Request) {
+func decodeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "405 bad request", http.StatusMethodNotAllowed)
+		w.WriteHeader(400)
 		return
 	}
 
-	contentType := r.Header.Get("Content-Type")
-	if !strings.HasPrefix(contentType, "application/x-www-form-urlencoded") {
-		http.Error(w, "Content-Type must be application/x-www-form-urlencoded", http.StatusUnsupportedMediaType)
+	if r.Header.Get("content-type") != "application/x-www-form-urlencoded" {
+		http.Error(w, "unsupported media type", http.StatusUnsupportedMediaType)
 		return
 	}
 
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "failed to parse form", http.StatusBadRequest)
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Bad request", 400)
 		return
 	}
 
-	username := r.FormValue("username")
+	name := r.FormValue("username")
 	language := r.FormValue("language")
 
-	if username == "" {
-		http.Error(w, "username is required", http.StatusBadRequest)
+	if name == "" {
+		http.Error(w, "username required", 400)
 		return
 	}
-
 	if language == "" {
-		http.Error(w, "language is required", http.StatusBadRequest)
+		http.Error(w, "user language required", 400)
 		return
 	}
+	fmt.Fprintf(w, "Hello %s, you are coding in %s!", name, language)
 
-	w.Header().Set("Content-Type", "text/plain")
-	fmt.Fprintf(w, "Hello %s, you are coding in %s!", username, language)
 }
 
 func main() {
-	http.HandleFunc("/form", formHandler)
+	http.HandleFunc("/form", decodeHandler)
 
-	fmt.Println("Server is running on http://localhost:8080")
+	fmt.Println("server runing on http://localhost:8080")
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		fmt.Println(err)
-	}
+	http.ListenAndServe(":8080", nil)
 }
